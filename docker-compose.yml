@@ -3,8 +3,9 @@ version: '3'
 services:
   wp:
     image: wordpress:latest # https://hub.docker.com/_/wordpress/
+    user: "1000:1000"
     ports:
-      - ${IP}:80:80 # change ip if required
+      - ${IP}:82:80 # change ip if required
     volumes:
       - ./config/php.conf.ini:/usr/local/etc/php/conf.d/conf.ini
       - ./wp-app:/var/www/html # Full wordpress project
@@ -49,18 +50,22 @@ services:
   db:
     image: mysql:latest # https://hub.docker.com/_/mysql/ - or mariadb https://hub.docker.com/_/mariadb
     ports:
-      - ${IP}:3306:3306 # change ip if required
+      - 127.0.0.1:3306:3306 # change ip if required
+#      - ${IP}:3306:3306 # change ip if required
     command: [
         '--default_authentication_plugin=mysql_native_password',
         '--character-set-server=utf8mb4',
-        '--collation-server=utf8mb4_unicode_ci'
+        '--collation-server=utf8mb4_unicode_ci',
+        '--federated'
     ]
     volumes:
       - ./wp-data:/docker-entrypoint-initdb.d
       - ./db_data:/var/lib/mysql
+      - ./wp-data/federated.conf:/etc/mysql/conf.d/federated.conf
     environment:
       MYSQL_DATABASE: "${DB_NAME}"
       MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
-
+#    entrypoint: ["sh", "/docker-entrypoint-initdb.d/entrypoint.sh"]
+    tty: true
 volumes:
   db_data:
