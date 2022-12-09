@@ -3,6 +3,7 @@ version: '3'
 services:
   wp:
     image: wordpress:latest # https://hub.docker.com/_/wordpress/
+    restart: always
     user: "1000:1000"
     ports:
       - ${IP}:82:80 # change ip if required
@@ -23,6 +24,7 @@ services:
 
   wpcli:
     image: wordpress:cli
+    restart: always
     volumes:
       - ./config/php.conf.ini:/usr/local/etc/php/conf.d/conf.ini
       - ./wp-app:/var/www/html
@@ -49,6 +51,7 @@ services:
 
   db:
     image: mysql:latest # https://hub.docker.com/_/mysql/ - or mariadb https://hub.docker.com/_/mariadb
+    restart: always
     ports:
       - 127.0.0.1:3306:3306 # change ip if required
 #      - ${IP}:3306:3306 # change ip if required
