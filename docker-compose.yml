@@ -24,7 +24,6 @@ services:
 
   wpcli:
     image: wordpress:cli
-    restart: always
     volumes:
       - ./config/php.conf.ini:/usr/local/etc/php/conf.d/conf.ini
       - ./wp-app:/var/www/html
