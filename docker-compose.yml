@@ -2,7 +2,9 @@ version: '3'
 
 services:
   wp:
-    image: wordpress:latest # https://hub.docker.com/_/wordpress/
+    #build: './docker/php'
+    image: wordpress:php7.4-apache
+    #image: wordpress:latest # https://hub.docker.com/_/wordpress/
     restart: always
     user: "1000:1000"
     ports:
@@ -10,6 +12,7 @@ services:
     volumes:
       - ./config/php.conf.ini:/usr/local/etc/php/conf.d/conf.ini
       - ./wp-app:/var/www/html # Full wordpress project
+      - ./upload.ini:/usr/local/etc/php/conf.d/uploads.ini
       #- ./plugin-name/trunk/:/var/www/html/wp-content/plugins/plugin-name # Plugin development
       #- ./theme-name/trunk/:/var/www/html/wp-content/themes/theme-name # Theme development
     environment:
@@ -70,5 +73,30 @@ services:
       MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
 #    entrypoint: ["sh", "/docker-entrypoint-initdb.d/entrypoint.sh"]
     tty: true
+  redis:
+    container_name: redis
+    restart: always
+    ports:
+      - "127.0.0.1:6379:6379"
+    command: redis-server --appendonly no --loglevel warning --protected-mode no
+    image: redis
+    volumes:
+      - ./docker/redis/data:/data
+
+  ftpd_server:
+    image: stilliard/pure-ftpd
+    container_name: pure-ftpd
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes: # remember to replace /folder_on_disk/ with the path to where you want to store the files on the host machine
+      - "/wp-app:/var/www/html"
+      - "/docker/ftp/passwd:/etc/pure-ftpd/passwd"
+    environment:
+      PUBLICHOST: "p.usc.ac.ir"
+      FTP_USER_NAME: fuser
+      FTP_USER_PASS: fpass
+      FTP_USER_HOME: /var/www/html
+#     restart: always
 volumes:
   db_data:
